@@ -111,7 +111,7 @@ const SVG = `<?xml version="1.0" encoding="UTF-8"?>
           font-size="30" font-weight="500" letter-spacing="0.5" fill="#0d0f0c">Favor International</text>
     <text x="172" y="142"
           font-family="Consolas, 'JetBrains Mono', monospace"
-          font-size="11" letter-spacing="2.4" font-weight="500" fill="#1a1d18">TRANSFORM HEARTS TRANSFORM NATIONS</text>
+          font-size="11" letter-spacing="2.4" font-weight="500" fill="#1a1d18">TRANSFORMED HEARTS TRANSFORM NATIONS</text>
 
     <!-- Apostolic chip (above headline) -->
     <g transform="translate(88, 360)">
