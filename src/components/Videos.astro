@@ -1,0 +1,152 @@
+---
+// Featured + grid video gallery using a YouTube facade pattern:
+// only static thumbnails load on first paint. When the user clicks a card,
+// the JS swaps the thumbnail for an autoplaying YouTube iframe in-place.
+// Avoids the ~700KB-per-iframe weight of embedding 9 videos directly.
+
+const featured = {
+  id: '2rA42c7aDDY',
+  title: 'Favor International, in one minute.',
+  subtitle: 'The whole movement, condensed.',
+  duration: '1 min',
+};
+
+const videos = [
+  {
+    id: '4YpOvDoc6k4',
+    title: 'Where Medicine Meets Miracles',
+    subtitle: "Inside Favor's medical center in Africa.",
+    tag: 'Medical Care',
+  },
+  {
+    id: 'DEydcLqBQW0',
+    title: "Favor's Primary Schools",
+    subtitle: 'Educated for the Kingdom.',
+    tag: 'Education',
+  },
+  {
+    id: 'C5VBPhA50Mg',
+    title: 'Evangelism in Africa',
+    subtitle: "Building lasting disciples through God's Word.",
+    tag: 'Evangelism',
+  },
+  {
+    id: 'TZmNp40_lbI',
+    title: 'Church Planting',
+    subtitle: 'The church is the body of Christ.',
+    tag: 'Church Planting',
+  },
+  {
+    id: '25f290un21o',
+    title: 'Once Under the Trees, Now a Church',
+    subtitle: 'A village receives its sanctuary.',
+    tag: 'Church Building',
+  },
+  {
+    id: 'xwSVEViFikA',
+    title: "GIFT — God's Institute for Transformation",
+    subtitle: 'Discipleship that transforms.',
+    tag: 'Discipleship',
+  },
+  {
+    id: 'nSFl3Y7TLYI',
+    title: 'The Power of Trauma Counseling',
+    subtitle: 'Healing the heart of a continent.',
+    tag: 'Trauma Healing',
+  },
+  {
+    id: 'JCjHdG0NnLQ',
+    title: 'To Reach a Village, Reach a Woman',
+    subtitle: "Empowering women to transform communities.",
+    tag: "Women's Ministry",
+  },
+];
+
+// hqdefault is universally available on YouTube; maxresdefault may 404 on
+// older or short-form videos. We try maxres first and fall back via onerror.
+const thumb = (id: string, hi = false) =>
+  `https://img.youtube.com/vi/${id}/${hi ? 'maxresdefault' : 'hqdefault'}.jpg`;
+const fallback = (id: string) =>
+  `this.onerror=null;this.src='https://img.youtube.com/vi/${id}/hqdefault.jpg'`;
+---
+<section class="section videos" id="videos">
+  <div class="container">
+    <div class="videos__head">
+      <span class="eyebrow">See the Work</span>
+      <h2>From the field, in <em>their own voices</em>.</h2>
+      <p>The Gospel meeting real lives — medicine, education, evangelism, women's empowerment, trauma healing, church planting, and more.</p>
+    </div>
+
+    <!-- Featured -->
+    <article class="video-feature" data-video-id={featured.id}>
+      <button class="video-feature__btn" type="button" aria-label={`Play: ${featured.title}`}>
+        <img
+          class="video-feature__thumb"
+          src={thumb(featured.id, true)}
+          onerror={fallback(featured.id)}
+          alt=""
+          loading="lazy"
+        />
+        <span class="video-feature__overlay"></span>
+        <span class="video-feature__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </span>
+        <span class="video-feature__chip">▶ Featured · {featured.duration}</span>
+        <span class="video-feature__meta">
+          <h3>{featured.title}</h3>
+          <p>{featured.subtitle}</p>
+        </span>
+      </button>
+    </article>
+
+    <!-- Grid -->
+    <div class="video-grid">
+      {videos.map((v) => (
+        <article class="video-card" data-video-id={v.id}>
+          <button class="video-card__btn" type="button" aria-label={`Play: ${v.title}`}>
+            <img
+              class="video-card__thumb"
+              src={thumb(v.id, true)}
+              onerror={fallback(v.id)}
+              alt=""
+              loading="lazy"
+            />
+            <span class="video-card__overlay"></span>
+            <span class="video-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            </span>
+          </button>
+          <div class="video-card__meta">
+            <span class="video-card__tag">{v.tag}</span>
+            <h3>{v.title}</h3>
+            <p>{v.subtitle}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Replace facade button with an autoplay YouTube iframe on click.
+  document.querySelectorAll<HTMLElement>('[data-video-id]').forEach((card) => {
+    const btn = card.querySelector<HTMLButtonElement>('button[data-video-id], .video-feature__btn, .video-card__btn');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = card.dataset.videoId;
+      if (!id) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'video-embed';
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+      iframe.title = btn.getAttribute('aria-label') || 'Favor International video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      wrap.appendChild(iframe);
+      btn.replaceWith(wrap);
+    });
+  });
+</script>
