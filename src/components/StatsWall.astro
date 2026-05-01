@@ -2,19 +2,24 @@
 ---
 <section class="stats" id="impact" aria-labelledby="stats-heading">
   <div class="container stats__inner">
-    <div class="stats__eyebrow">2025 · The Fruit Speaks for Itself</div>
-    <p class="stats__lead" id="stats-heading">A movement of indigenous missionaries reaching the unreached across Africa.</p>
+    <div class="stats__head">
+      <div class="stats__year">2025</div>
+      <div class="stats__head-meta">
+        <div class="stats__eyebrow">Annual Impact &middot; The Fruit Speaks for Itself</div>
+        <p class="stats__lead" id="stats-heading">A movement of indigenous missionaries reaching the unreached across Africa.</p>
+      </div>
+    </div>
     <div class="stats__grid">
       <div class="stat">
-        <div class="stat__num">195,773</div>
+        <div class="stat__num" data-count-to="195773">195,773</div>
         <div class="stat__caption">Salvations</div>
       </div>
       <div class="stat">
-        <div class="stat__num">119,182</div>
+        <div class="stat__num" data-count-to="119182">119,182</div>
         <div class="stat__caption">Discipled</div>
       </div>
       <div class="stat">
-        <div class="stat__num">1,400</div>
+        <div class="stat__num" data-count-to="1400">1,400</div>
         <div class="stat__caption">Indigenous missionaries</div>
       </div>
       <div class="stat">
@@ -25,3 +30,38 @@
     <p class="stats__verse">How is the LORD calling your church to be a part of bringing the Great Commission to the nations?</p>
   </div>
 </section>
+
+<script>
+  // Count-up animation when stats enter the viewport.
+  const formatter = new Intl.NumberFormat('en-US');
+  const animate = (el: HTMLElement) => {
+    const target = Number(el.dataset.countTo || 0);
+    if (!target) return;
+    const dur = 1400;
+    const start = performance.now();
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      el.textContent = formatter.format(Math.round(target * ease(t)));
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = formatter.format(target);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nums = document.querySelectorAll<HTMLElement>('.stat__num[data-count-to]');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    nums.forEach((n) => { n.textContent = formatter.format(Number(n.dataset.countTo || 0)); });
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          animate(e.target as HTMLElement);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    nums.forEach((n) => { n.textContent = '0'; io.observe(n); });
+  }
+</script>

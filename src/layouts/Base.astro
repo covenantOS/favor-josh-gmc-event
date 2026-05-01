@@ -12,6 +12,12 @@ const {
   description = 'Favor International is an approved Apostolic Ministry partner of the Global Methodist Church. Partner with 1,400 indigenous missionaries across 14+ nations. Three faithful steps for your church: pray, give, host.',
   ogImage = '/aecgmc-slide.png',
 } = Astro.props;
+
+// Google Analytics 4 — set PUBLIC_GA_ID in Cloudflare Pages env vars
+// (Settings → Environment variables → Production → PUBLIC_GA_ID = G-XXXXXXXXXX).
+// Subdomains share data with the parent property automatically when the same
+// measurement ID is used across favorintl.org and aecgmc.favorintl.org.
+const GA_ID = import.meta.env.PUBLIC_GA_ID;
 ---
 <!doctype html>
 <html lang="en">
@@ -39,6 +45,18 @@ const {
     <link rel="canonical" href="https://aecgmc.favorintl.org" />
 
     <meta name="generator" content={Astro.generator} />
+
+    {GA_ID && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+        <script is:inline define:vars={{ GA_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', GA_ID, { anonymize_ip: true });
+        </script>
+      </>
+    )}
   </head>
   <body>
     <slot />

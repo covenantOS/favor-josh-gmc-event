@@ -1,0 +1,26 @@
+---
+const chips = [
+  'ECFA Accredited',
+  'Charity Navigator',
+  'GuideStar Platinum',
+  '501(c)(3)',
+  'Asbury Theological Seminary',
+];
+---
+<section class="trust-bar" aria-label="Accreditations and trust signals">
+  <div class="container trust-bar__inner">
+    <span class="trust-bar__label">Trusted &amp; Accredited</span>
+    <ul class="trust-bar__chips">
+      {chips.map((c) => (
+        <li class="trust-bar__chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+          {c}
+        </li>
+      ))}
+      <li class="trust-bar__chip trust-bar__chip--accent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        24 yrs &middot; 1,400 Missionaries &middot; 14+ Nations
+      </li>
+    </ul>
+  </div>
+</section>
