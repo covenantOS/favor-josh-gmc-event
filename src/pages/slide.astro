@@ -1,0 +1,328 @@
+---
+import QRCode from 'qrcode';
+
+const url = 'https://aecgmc.favorintl.org';
+const rawQrSvg = await QRCode.toString(url, {
+  type: 'svg',
+  errorCorrectionLevel: 'H',
+  margin: 0,
+  color: { dark: '#0d0f0c', light: '#faf6ec' },
+});
+// Strip the XML declaration and inject explicit sizing so the SVG renders at
+// 520x520 inside the card. Without this, set:html keeps the SVG at its
+// intrinsic 300x150 default.
+const qrSvg = rawQrSvg
+  .replace(/<\?xml[^>]*\?>/, '')
+  .replace(/<svg /, '<svg width="520" height="520" preserveAspectRatio="xMidYMid meet" ');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AECC × Favor International — QR Slide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --ink: #0d0f0c;
+        --ink-soft: #1a1d18;
+        --paper: #f4efe6;
+        --paper-warm: #ece5d6;
+        --cream: #faf6ec;
+        --bone: #fbfaf6;
+        --green: #19a838;
+        --green-bright: #2dd84e;
+        --green-deep: #0c7a26;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 100%; height: 100%; background: #000; }
+      body {
+        font-family: 'Inter Tight', system-ui, sans-serif;
+        color: var(--ink);
+      }
+      .slide {
+        width: 1920px;
+        height: 1080px;
+        display: grid;
+        grid-template-columns: 1152px 768px;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+      }
+      /* LEFT — paper */
+      .slide__left {
+        background:
+          radial-gradient(ellipse 800px 600px at 90% -10%, rgba(25,168,56,0.10), transparent 60%),
+          radial-gradient(ellipse 600px 600px at -10% 90%, rgba(192,83,43,0.06), transparent 60%),
+          var(--paper);
+        position: relative;
+        padding: 96px 88px 88px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .slide__left::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        opacity: 0.18;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        position: relative;
+        z-index: 1;
+      }
+      .brand img {
+        width: 64px; height: 64px; object-fit: contain;
+      }
+      .brand__name {
+        font-family: 'Fraunces', serif;
+        font-size: 30px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ink);
+      }
+      .brand__tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-top: 4px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--green);
+        color: var(--cream);
+        padding: 12px 22px;
+        border-radius: 999px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        align-self: flex-start;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 8px 32px rgba(25,168,56,0.28);
+      }
+      .chip::before {
+        content: '';
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--cream);
+      }
+      .headline {
+        font-family: 'Fraunces', serif;
+        font-weight: 400;
+        font-variation-settings: 'opsz' 144, 'SOFT' 80;
+        font-size: 96px;
+        line-height: 0.96;
+        letter-spacing: -0.025em;
+        color: var(--ink);
+        max-width: 13ch;
+        position: relative;
+        z-index: 1;
+        margin-top: 32px;
+      }
+      .headline .accent {
+        font-style: italic;
+        font-weight: 300;
+        font-variation-settings: 'opsz' 144, 'SOFT' 100;
+        color: var(--green);
+        position: relative;
+        display: inline-block;
+      }
+      .headline .accent::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 6px;
+        height: 14px;
+        background: linear-gradient(90deg, var(--green), var(--green-bright));
+        opacity: 0.20;
+        transform: skew(-8deg);
+        border-radius: 6px;
+        z-index: -1;
+      }
+      .lede {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-weight: 300;
+        font-size: 30px;
+        color: var(--ink-soft);
+        margin-top: 24px;
+        position: relative;
+        z-index: 1;
+        max-width: 30ch;
+      }
+      .signoff {
+        position: relative;
+        z-index: 1;
+      }
+      .signoff__rule {
+        height: 1px;
+        background: rgba(13,15,12,0.18);
+        margin-bottom: 22px;
+      }
+      .signoff__name {
+        font-family: 'Fraunces', serif;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+      }
+      .signoff__title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-top: 6px;
+      }
+      .signoff__contact {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        letter-spacing: 0.04em;
+        color: var(--ink);
+        margin-top: 14px;
+      }
+
+      /* RIGHT — ink panel with QR */
+      .slide__right {
+        background: var(--ink);
+        color: var(--cream);
+        position: relative;
+        padding: 88px 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+      .slide__right::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -30%;
+        width: 720px;
+        height: 720px;
+        background: radial-gradient(circle, var(--green) 0%, transparent 60%);
+        opacity: 0.42;
+        filter: blur(50px);
+        pointer-events: none;
+      }
+      .slide__right::after {
+        content: '';
+        position: absolute;
+        bottom: -25%;
+        left: -25%;
+        width: 540px;
+        height: 540px;
+        background: radial-gradient(circle, #c0532b 0%, transparent 60%);
+        opacity: 0.18;
+        filter: blur(60px);
+        pointer-events: none;
+      }
+      .qr-eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(250,246,236,0.62);
+        margin-bottom: 28px;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .qr-eyebrow::before {
+        content: '';
+        display: inline-block;
+        width: 36px; height: 1px;
+        background: var(--green-bright);
+      }
+      .qr-card {
+        background: var(--cream);
+        border-radius: 24px;
+        padding: 36px;
+        position: relative;
+        z-index: 1;
+        box-shadow:
+          0 0 0 1px rgba(45,216,78,0.45),
+          0 24px 80px rgba(25,168,56,0.32),
+          0 4px 24px rgba(0,0,0,0.4);
+      }
+      .qr-card svg {
+        width: 520px;
+        height: 520px;
+        display: block;
+      }
+      .qr-cta {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 28px;
+        color: var(--cream);
+        margin-top: 28px;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+      .qr-url {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--green-bright);
+        margin-top: 10px;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <div class="slide__left">
+        <div>
+          <div class="brand">
+            <img src="/images/favor-icon.png" alt="" />
+            <div>
+              <div class="brand__name">Favor International</div>
+              <div class="brand__tag">Transforming Hearts Transform Nations</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <span class="chip">Apostolic Partner · Global Methodist Church</span>
+          <h1 class="headline">Mobilize your church to <span class="accent">transform nations</span>.</h1>
+          <p class="lede">A movement of 1,400 indigenous missionaries across 14+ nations of Africa.</p>
+        </div>
+
+        <div class="signoff">
+          <div class="signoff__rule"></div>
+          <div class="signoff__name">Josh Milliron</div>
+          <div class="signoff__title">National Director of Church Engagement</div>
+          <div class="signoff__contact">josh@favorintl.org &nbsp;·&nbsp; 813-345-1005</div>
+        </div>
+      </div>
+
+      <div class="slide__right">
+        <div class="qr-eyebrow">Scan to Discover Favor</div>
+        <div class="qr-card" set:html={qrSvg}></div>
+        <div class="qr-cta">Discover the movement.</div>
+        <div class="qr-url">aecgmc.favorintl.org</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+---
+const photos = [
+  { src: '/images/field-girls-pink.jpg', caption: 'Northern Uganda · joy in the field', cls: 'g1' },
+  { src: '/images/field-men-joyful.jpg', caption: 'Discipleship gathering · the next generation', cls: 'g2' },
+  { src: '/images/field-schoolgirls.jpg', caption: 'Village Learning Center · educated for the Kingdom', cls: 'g3' },
+  { src: '/images/field-woman-smile.jpg', caption: 'A transformed life · Christ at the center', cls: 'g4' },
+  { src: '/images/bible-school.jpg', caption: 'Portable Bible School · leaders making leaders', cls: 'g5' },
+  { src: '/images/field-men-shirts.jpg', caption: 'Indigenous missionaries · 14+ nations', cls: 'g6' },
+];
+---
+<section class="section gallery-section" id="field">
+  <div class="container">
+    <div class="gallery-section__head">
+      <span class="eyebrow">Field Notes · Africa</span>
+      <h2>The harvest is <em>plentiful</em>.</h2>
+    </div>
+    <div class="gallery">
+      {photos.map((p) => (
+        <figure class={p.cls}>
+          <img src={p.src} alt={p.caption} loading="lazy" />
+          <figcaption>{p.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>

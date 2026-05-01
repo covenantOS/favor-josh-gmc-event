@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'Favor International × AECC GMC — Mobilize your church to transform nations',
+  description = 'Favor International is an approved Apostolic Ministry partner of the Global Methodist Church. Partner with 1,400 indigenous missionaries across 14+ nations. Three faithful steps for your church: pray, give, host.',
+  ogImage = '/aecgmc-slide.png',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d0f0c" />
+    <link rel="icon" type="image/png" href="/images/favor-icon.png" />
+    <link rel="apple-touch-icon" href="/images/favor-icon.png" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content="https://aecgmc.favorintl.org" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="canonical" href="https://aecgmc.favorintl.org" />
+
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

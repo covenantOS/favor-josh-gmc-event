@@ -1,0 +1,19 @@
+{
+  "name": "favor-josh-gmc-event",
+  "version": "1.0.0",
+  "description": "Favor International x AECC GMC — landing page + QR slide for the Alabama/Emerald Coast Annual Conference of the Global Methodist Church.",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "npm run build:slide && astro build",
+    "build:slide": "node scripts/build-slide.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^6.1.10",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.34.5"
+  }
+}
