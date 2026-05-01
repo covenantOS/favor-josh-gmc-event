@@ -55,10 +55,6 @@ If you want a perfect-brand-font version (Fraunces, etc.), open the live `/slide
 - **Brand tokens:** `src/styles/global.css` (Fraunces / Inter Tight / JetBrains Mono; green / ink / cream / paper palette).
 - **Photos:** `public/images/` (copied from the Favor hub site; safe to swap in better field images).
 
-## TODO before launch
-
-- **Prayer section video URL** — `Watch the Video` link in `src/components/ThreeWays.astro` is a placeholder (`#pray-video`). Drop the YouTube/Vimeo URL into the `href` once available.
-
 ## Brand
 
 Colors, typography, and motion mirror the Favor hub site (`hub.favorintl.org`). Display: Fraunces. Body: Inter Tight. Mono accent: JetBrains Mono.
