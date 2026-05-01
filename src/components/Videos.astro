@@ -1,14 +1,16 @@
 ---
-// Featured + grid video gallery using a YouTube facade pattern:
-// only static thumbnails load on first paint. When the user clicks a card,
-// the JS swaps the thumbnail for an autoplaying YouTube iframe in-place.
-// Avoids the ~700KB-per-iframe weight of embedding 9 videos directly.
+// Video gallery: a single "stage" at the top, plus a grid of clickable
+// thumbnails below. Clicking any thumbnail loads that video into the
+// stage with autoplay and updates the title/subtitle/chip in place.
+//
+// Performance: thumbnails are cheap static images (~30KB each). The
+// 700KB+ iframe only loads when the user actually clicks something.
 
 const featured = {
-  id: '2rA42c7aDDY',
-  title: 'Favor International, in one minute.',
-  subtitle: 'The whole movement, condensed.',
-  duration: '1 min',
+  id: 'LHarkRULU7Q',
+  title: 'An Indigenous Missionary Movement.',
+  subtitle: '1,400 native missionaries across 14+ nations of Africa.',
+  tag: 'Featured Film',
 };
 
 const videos = [
@@ -57,13 +59,17 @@ const videos = [
   {
     id: 'JCjHdG0NnLQ',
     title: 'To Reach a Village, Reach a Woman',
-    subtitle: "Empowering women to transform communities.",
+    subtitle: 'Empowering women to transform communities.',
     tag: "Women's Ministry",
+  },
+  {
+    id: '2rA42c7aDDY',
+    title: 'Favor International, in one minute.',
+    subtitle: 'The whole movement, condensed.',
+    tag: '60-Second Intro',
   },
 ];
 
-// hqdefault is universally available on YouTube; maxresdefault may 404 on
-// older or short-form videos. We try maxres first and fall back via onerror.
 const thumb = (id: string, hi = false) =>
   `https://img.youtube.com/vi/${id}/${hi ? 'maxresdefault' : 'hqdefault'}.jpg`;
 const fallback = (id: string) =>
@@ -77,32 +83,47 @@ const fallback = (id: string) =>
       <p>The Gospel meeting real lives — medicine, education, evangelism, women's empowerment, trauma healing, church planting, and more.</p>
     </div>
 
-    <!-- Featured -->
-    <article class="video-feature" data-video-id={featured.id}>
-      <button class="video-feature__btn" type="button" aria-label={`Play: ${featured.title}`}>
-        <img
-          class="video-feature__thumb"
-          src={thumb(featured.id, true)}
-          onerror={fallback(featured.id)}
-          alt=""
-          loading="lazy"
-        />
-        <span class="video-feature__overlay"></span>
-        <span class="video-feature__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
-        </span>
-        <span class="video-feature__chip">▶ Featured · {featured.duration}</span>
-        <span class="video-feature__meta">
-          <h3>{featured.title}</h3>
-          <p>{featured.subtitle}</p>
-        </span>
-      </button>
+    <!-- STAGE: featured player + caption (caption updates when a grid card is selected) -->
+    <article
+      class="video-feature"
+      id="video-stage"
+      data-video-id={featured.id}
+      data-title={featured.title}
+      data-subtitle={featured.subtitle}
+      data-tag={featured.tag}
+    >
+      <div class="video-feature__player" id="stage-player">
+        <button class="video-feature__btn" type="button" aria-label={`Play: ${featured.title}`}>
+          <img
+            class="video-feature__thumb"
+            src={thumb(featured.id, true)}
+            onerror={fallback(featured.id)}
+            alt=""
+            loading="eager"
+          />
+          <span class="video-feature__overlay"></span>
+          <span class="video-feature__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="video-feature__caption">
+        <span class="video-feature__chip" id="stage-chip">▶ {featured.tag}</span>
+        <h3 id="stage-title">{featured.title}</h3>
+        <p id="stage-subtitle">{featured.subtitle}</p>
+      </div>
     </article>
 
-    <!-- Grid -->
+    <!-- GRID: clicking any card loads it into the stage above -->
     <div class="video-grid">
       {videos.map((v) => (
-        <article class="video-card" data-video-id={v.id}>
+        <article
+          class="video-card"
+          data-video-id={v.id}
+          data-title={v.title}
+          data-subtitle={v.subtitle}
+          data-tag={v.tag}
+        >
           <button class="video-card__btn" type="button" aria-label={`Play: ${v.title}`}>
             <img
               class="video-card__thumb"
@@ -128,25 +149,78 @@ const fallback = (id: string) =>
 </section>
 
 <script>
-  // Replace facade button with an autoplay YouTube iframe on click.
-  document.querySelectorAll<HTMLElement>('[data-video-id]').forEach((card) => {
-    const btn = card.querySelector<HTMLButtonElement>('button[data-video-id], .video-feature__btn, .video-card__btn');
-    if (!btn) return;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const id = card.dataset.videoId;
-      if (!id) return;
+  (function () {
+    const stage = document.getElementById('video-stage') as HTMLElement | null;
+    const player = document.getElementById('stage-player') as HTMLElement | null;
+    const chip = document.getElementById('stage-chip') as HTMLElement | null;
+    const titleEl = document.getElementById('stage-title') as HTMLElement | null;
+    const subtitleEl = document.getElementById('stage-subtitle') as HTMLElement | null;
+    if (!stage || !player || !chip || !titleEl || !subtitleEl) return;
+
+    function loadInStage(
+      videoId: string,
+      title: string,
+      subtitle: string,
+      tag: string,
+      shouldScroll: boolean,
+    ) {
+      // Replace whatever's in the player (facade or previous iframe) with a fresh autoplay iframe.
       const wrap = document.createElement('div');
       wrap.className = 'video-embed';
       const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
-      iframe.title = btn.getAttribute('aria-label') || 'Favor International video';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      iframe.title = title;
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       iframe.referrerPolicy = 'strict-origin-when-cross-origin';
       iframe.allowFullscreen = true;
       iframe.loading = 'lazy';
       wrap.appendChild(iframe);
-      btn.replaceWith(wrap);
+      player!.replaceChildren(wrap);
+
+      titleEl!.textContent = title;
+      subtitleEl!.textContent = subtitle;
+      chip!.textContent = `▶ ${tag}`;
+
+      // Mark the active card so the user knows which one is on stage.
+      document.querySelectorAll('.video-card').forEach((c) => c.classList.remove('is-active'));
+      const active = document.querySelector(`.video-card[data-video-id="${videoId}"]`);
+      if (active) active.classList.add('is-active');
+
+      if (shouldScroll) {
+        stage!.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Featured player's facade button → play the default video in place (no scroll).
+    const featuredBtn = player.querySelector('button');
+    if (featuredBtn) {
+      featuredBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadInStage(
+          stage.dataset.videoId || '',
+          stage.dataset.title || '',
+          stage.dataset.subtitle || '',
+          stage.dataset.tag || 'Featured',
+          false,
+        );
+      });
+    }
+
+    // Grid card clicks → swap into the stage and scroll to it.
+    document.querySelectorAll<HTMLElement>('.video-card').forEach((card) => {
+      const btn = card.querySelector('button');
+      if (!btn) return;
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadInStage(
+          card.dataset.videoId || '',
+          card.dataset.title || '',
+          card.dataset.subtitle || '',
+          card.dataset.tag || '',
+          true,
+        );
+      });
     });
-  });
+  })();
 </script>
